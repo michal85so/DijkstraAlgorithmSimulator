@@ -3,9 +3,7 @@ package pl.pk.isk;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class GraphGenerator {
@@ -37,10 +35,19 @@ public class GraphGenerator {
 
         DirectedSparseMultigraph<CustomNode, CustomLink> directedSparseMultigraph = new DirectedSparseMultigraph<CustomNode, CustomLink>();
         Random random = new Random();
-        listOfNodes.stream().forEach(node ->
-                IntStream.rangeClosed(1,numberOfEdgesBetweenNodes).forEach(counter
-                        -> directedSparseMultigraph.addEdge(new CustomLink((int)(random.nextDouble() * 100), random.nextInt(100)),
-                            node, listOfNodes.get(random.nextInt(listOfNodes.size())))));
+        listOfNodes.stream().forEach(node -> {
+            Set<Integer> alreadyConnectedNodes = new HashSet<>();
+
+            IntStream.rangeClosed(1,numberOfEdgesBetweenNodes).forEach(counter
+                -> {
+                int nextInt;
+                do {
+                    nextInt = random.nextInt(listOfNodes.size());
+                } while(!alreadyConnectedNodes.add(nextInt));
+                directedSparseMultigraph.addEdge(new CustomLink((int)(random.nextDouble() * 100), random.nextInt(100)),
+                            node, listOfNodes.get(nextInt));
+            });
+        });
 
         return directedSparseMultigraph;
     }

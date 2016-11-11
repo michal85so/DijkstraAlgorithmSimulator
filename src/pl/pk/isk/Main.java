@@ -29,7 +29,7 @@ public class Main extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Dijkstra Algorithm Simulator");
+        primaryStage.setTitle("Dijkstra Algorithm Simulator - Author Michał Policht");
         primaryStage.setScene(createScene());
         primaryStage.show();
     }
