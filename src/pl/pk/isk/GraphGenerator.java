@@ -1,12 +1,14 @@
 package pl.pk.isk;
 
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
 public class GraphGenerator {
+    private List<CustomNode> listOfNodes;
 
     public DirectedSparseMultigraph<CustomNode, CustomLink> createNodesAndEdges() {
         DirectedSparseMultigraph<CustomNode, CustomLink> directedSparseMultigraph = new DirectedSparseMultigraph<CustomNode, CustomLink>();
@@ -28,12 +30,12 @@ public class GraphGenerator {
         return directedSparseMultigraph;
     }
 
-    public DirectedSparseMultigraph<CustomNode, CustomLink> generateGraph(int numberOfNodes, int numberOfEdgesBetweenNodes) {
-        List<CustomNode> listOfNodes = new ArrayList<>(numberOfNodes);
+    public UndirectedSparseMultigraph<CustomNode, CustomLink> generateGraph(int numberOfNodes, int numberOfEdgesBetweenNodes) {
+        listOfNodes = new ArrayList<>(numberOfNodes);
 
         IntStream.rangeClosed(1, numberOfNodes).forEach(i -> listOfNodes.add(new CustomNode(i)));
 
-        DirectedSparseMultigraph<CustomNode, CustomLink> directedSparseMultigraph = new DirectedSparseMultigraph<CustomNode, CustomLink>();
+        UndirectedSparseMultigraph<CustomNode, CustomLink> directedSparseMultigraph = new UndirectedSparseMultigraph<CustomNode, CustomLink>();
         Random random = new Random();
         listOfNodes.stream().forEach(node -> {
             Set<Integer> alreadyConnectedNodes = new HashSet<>();
@@ -45,10 +47,14 @@ public class GraphGenerator {
                     nextInt = random.nextInt(listOfNodes.size());
                 } while(!alreadyConnectedNodes.add(nextInt));
                 directedSparseMultigraph.addEdge(new CustomLink((int)(random.nextDouble() * 100), random.nextInt(100)),
-                            node, listOfNodes.get(nextInt));
+                            node, listOfNodes.get(nextInt), EdgeType.UNDIRECTED);
             });
         });
 
         return directedSparseMultigraph;
+    }
+
+    public List<CustomNode> getListOfNodes() {
+        return listOfNodes;
     }
 }
