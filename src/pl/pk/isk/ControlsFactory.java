@@ -1,7 +1,9 @@
 package pl.pk.isk;
 
+import com.sun.istack.internal.NotNull;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 /**
@@ -14,5 +16,11 @@ public final class ControlsFactory {
         textField.setAlignment(Pos.CENTER);
         textField.setPadding(new Insets(0,0,5,0));
         return textField;
+    }
+
+    public static Label createLabel(@NotNull String name) {
+        Label label = new Label(name);
+        label.setPadding(new Insets(0,0,5,0));
+        return label;
     }
 }
