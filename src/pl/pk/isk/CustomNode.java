@@ -8,4 +8,5 @@ public class CustomNode {
     public String toString() {
         return "V" + id;
     }
+    public int getId() { return id; }
 }

@@ -4,7 +4,8 @@ import javafx.scene.control.Alert;
 
 public class Dialogs {
     public enum Text{
-        numberOfNodesLessThanTwo("Walidacja!", "Liczba wierzchłków musi być większa niż 1!");
+        numberOfNodesLessThanTwo("Walidacja!", "Liczba wierzchłków musi być większa niż 1!"),
+        wrongNumberOfConnections("Walidacja!", "Nieprawidłowa liczba połączeń!");
 
         private String type;
         private String text;

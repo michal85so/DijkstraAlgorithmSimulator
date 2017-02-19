@@ -12,6 +12,10 @@ public class CustomLink {
         this.weight = weight;
     }
 
+    public double getWeight() {
+        return weight;
+    }
+
     public String toString() {
         return "E" + id + " Cap=" + capacity + " Wei=" + weight;
     }

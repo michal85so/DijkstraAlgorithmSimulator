@@ -2,30 +2,26 @@ package pl.pk.isk;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.*;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import org.apache.commons.collections15.Transformer;
 
 import java.awt.*;
-import java.util.Optional;
 
 public class Main extends Application{
     private TextField tfdEdgesNumber;
@@ -50,25 +46,50 @@ public class Main extends Application{
         Group group = new Group();
         group.getChildren().add(swingNode);
 
+        GridPane toolbar = getGeneratedGraph(swingNode);
+
+        GridPane panel = new GridPane();
+        panel.setPadding(new Insets(10));
+        panel.add(toolbar, 0, 0);
+        panel.add(group, 1, 0);
+        panel.setAlignment(Pos.TOP_LEFT);
+
+        TabPane tabPane = new TabPane();
+
+        Tab generateTab = new Tab();
+        generateTab.setText("Generator");
+        generateTab.setContent(panel);
+
+        Tab editorTab = new Tab();
+        editorTab.setText("Edytor");
+
+        tabPane.getTabs().addAll(generateTab, editorTab);
+
+        return new Scene(tabPane, 1024, 700);
+    }
+
+    private GridPane getGeneratedGraph(SwingNode swingNode) {
         GridPane toolbar = new GridPane();
         toolbar.setPadding(new Insets(0,10,0,0));
 
-        Label lblEdgesNumber = new Label("Liczba wierzchłków: ");
+        Label lblEdgesNumber = new Label("Liczba wierzchołków: ");
         lblEdgesNumber.setPadding(new Insets(0,0,5,0));
         toolbar.add(lblEdgesNumber, 0, 0);
-        tfdEdgesNumber = new TextField();
-        tfdEdgesNumber.setMaxWidth(50);
-        tfdEdgesNumber.setAlignment(Pos.CENTER);
-        tfdEdgesNumber.setPadding(new Insets(0,0,5,0));
+        tfdEdgesNumber = ControlsFactory.createTextField();
+        tfdEdgesNumber.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*"))
+                tfdEdgesNumber.setText(newValue.replaceAll("[^\\d]", ""));
+        });
         toolbar.add(tfdEdgesNumber, 1, 0);
 
         Label lblConnectionNumber = new Label("Liczba krawędzi dla\nkażdego wierzchołka: ");
         lblConnectionNumber.setPadding(new Insets(0,0,5,0));
         toolbar.add(lblConnectionNumber, 0, 1);
-        tfdConnectionNumber = new TextField();
-        tfdConnectionNumber.setMaxWidth(50);
-        tfdConnectionNumber.setAlignment(Pos.CENTER);
-        tfdConnectionNumber.setPadding(new Insets(0,0,5,0));
+        tfdConnectionNumber = ControlsFactory.createTextField();
+        tfdConnectionNumber.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*"))
+                tfdConnectionNumber.setText(newValue.replaceAll("[^\\d]", ""));
+        });
         toolbar.add(tfdConnectionNumber, 1, 1);
 
         Button btnGenerateGraph = new Button("Generuj graf");
@@ -83,50 +104,38 @@ public class Main extends Application{
         Label lblPathFrom = new Label("Wierzchołek początkowy: ");
         lblPathFrom.setPadding(new Insets(0,0,5,0));
         toolbar.add(lblPathFrom, 0, 4);
-        tfdEdgeFrom = new TextField();
-        tfdEdgeFrom.setMaxWidth(50);
-        tfdEdgeFrom.setAlignment(Pos.CENTER);
-        tfdEdgeFrom.setPadding(new Insets(0,0,5,0));
+        tfdEdgeFrom = ControlsFactory.createTextField();
         toolbar.add(tfdEdgeFrom, 1, 4);
 
         Label lblPathTo = new Label("Wierzchołek końcowy: ");
         lblPathTo.setPadding(new Insets(0,0,5,0));
         toolbar.add(lblPathTo, 0, 5);
-        tfdEdgeTo = new TextField();
-        tfdEdgeTo.setMaxWidth(50);
-        tfdEdgeTo.setAlignment(Pos.CENTER);
-        tfdEdgeTo.setPadding(new Insets(0,0,5,0));
+        tfdEdgeTo = ControlsFactory.createTextField();
         toolbar.add(tfdEdgeTo, 1, 5);
 
         Button btnSearchPath = new Button("Szukaj");
-        btnSearchPath.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                DijkstraShortestPath<CustomNode, CustomLink> alg = new DijkstraShortestPath(graph);
-                System.out.println(alg.getPath(graphGenerator.getListOfNodes().get(0), graphGenerator.getListOfNodes().get(6)));
-            }
+        btnSearchPath.setOnAction(event -> {
+            Transformer<CustomLink, Double> transformer = CustomLink::getWeight;
+            DijkstraShortestPath<CustomNode, CustomLink> alg = new DijkstraShortestPath(graph, transformer);
+            System.out.println(alg.getPath(graphGenerator.getListOfNodes().get(0), graphGenerator.getListOfNodes().get(6)));
         });
+        btnSearchPath.setPadding(new Insets(5,5,5,5));
         toolbar.add(btnSearchPath, 0,6);
+        return toolbar;
+    }
 
-        GridPane panel = new GridPane();
-        panel.setPadding(new Insets(10));
-        panel.add(toolbar, 0, 0);
-        panel.add(group, 1, 0);
-        panel.setAlignment(Pos.TOP_LEFT);
-
-        return new Scene(panel, 1024, 600);
+    private GridPane getPaintedGraph() {
+        return null;
     }
 
     private VisualizationViewer<CustomNode, CustomLink> createVisualizationViewer(String numberOfNodes, String numberOfConnection) {
-        Integer nodes = checkStringAndConvertToInt(numberOfNodes);
-        Integer connections = checkStringAndConvertToInt(numberOfConnection);
-        if (nodes == null || nodes.intValue() < 2) {
-            Dialogs.showError(Dialogs.Text.numberOfNodesLessThanTwo);
-            return null;
-        }
+        Integer nodes = Converters.checkStringAndConvertToInt(numberOfNodes);
+        Integer connections = Converters.checkStringAndConvertToInt(numberOfConnection);
+        if (validateInputValues(nodes, connections)) return null;
 
         graphGenerator = new GraphGenerator();
         graph = graphGenerator.generateGraph(nodes, connections);
+
         VisualizationViewer<CustomNode, CustomLink> visualizationViewer =
                 new VisualizationViewer<>(new CircleLayout<>(graph), new Dimension(800, 600));
         visualizationViewer.setPreferredSize(new Dimension(800, 600));
@@ -139,11 +148,16 @@ public class Main extends Application{
         return visualizationViewer;
     }
 
-    private Integer checkStringAndConvertToInt(String string) {
-        Optional<String> optional = Optional.of(string);
-        if (optional.isPresent() && optional.get().length() > 0 && optional.get().matches("\\d+"))
-            return Integer.valueOf(optional.get()).intValue();
-        return null;
+    private boolean validateInputValues(Integer nodes, Integer connections) {
+        if (nodes == null || nodes.intValue() < 2) {
+            Dialogs.showError(Dialogs.Text.numberOfNodesLessThanTwo);
+            return true;
+        }
+        if (connections == null || connections < 1 ||  connections >= nodes) {
+            Dialogs.showError(Dialogs.Text.wrongNumberOfConnections);
+            return true;
+        }
+        return false;
     }
 
 }

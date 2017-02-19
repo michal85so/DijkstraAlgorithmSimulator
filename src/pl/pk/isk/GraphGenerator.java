@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 public class GraphGenerator {
     private List<CustomNode> listOfNodes;
+    private Map<Integer, List<Integer>> connections;
 
     public DirectedSparseMultigraph<CustomNode, CustomLink> createNodesAndEdges() {
         DirectedSparseMultigraph<CustomNode, CustomLink> directedSparseMultigraph = new DirectedSparseMultigraph<CustomNode, CustomLink>();
@@ -32,6 +33,7 @@ public class GraphGenerator {
 
     public UndirectedSparseMultigraph<CustomNode, CustomLink> generateGraph(int numberOfNodes, int numberOfEdgesBetweenNodes) {
         listOfNodes = new ArrayList<>(numberOfNodes);
+        connections = new HashMap<>();
 
         IntStream.rangeClosed(1, numberOfNodes).forEach(i -> listOfNodes.add(new CustomNode(i)));
 
@@ -40,14 +42,19 @@ public class GraphGenerator {
         listOfNodes.stream().forEach(node -> {
             Set<Integer> alreadyConnectedNodes = new HashSet<>();
 
-            IntStream.rangeClosed(1,numberOfEdgesBetweenNodes).forEach(counter
-                -> {
+            IntStream.rangeClosed(1, numberOfEdgesBetweenNodes).forEach(counter
+                    -> {
                 int nextInt;
                 do {
                     nextInt = random.nextInt(listOfNodes.size());
-                } while(!alreadyConnectedNodes.add(nextInt));
-                directedSparseMultigraph.addEdge(new CustomLink((int)(random.nextDouble() * 100), random.nextInt(100)),
-                            node, listOfNodes.get(nextInt), EdgeType.UNDIRECTED);
+                } while ((connections.containsKey(nextInt + 1) && connections.get(nextInt + 1).contains(node.getId()))
+                        || !alreadyConnectedNodes.add(nextInt));
+                directedSparseMultigraph.addEdge(new CustomLink((int) (random.nextDouble() * 100), random.nextInt(100)),
+                        node, listOfNodes.get(nextInt), EdgeType.UNDIRECTED);
+                if (!connections.containsKey(node.getId())) {
+                    connections.put(node.getId(), new ArrayList<>());
+                }
+                connections.get(node.getId()).add(nextInt + 1);
             });
         });
 
