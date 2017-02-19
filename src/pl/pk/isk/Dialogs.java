@@ -5,7 +5,9 @@ import javafx.scene.control.Alert;
 public class Dialogs {
     public enum Text{
         numberOfNodesLessThanTwo("Walidacja!", "Liczba wierzchłków musi być większa niż 1!"),
-        wrongNumberOfConnections("Walidacja!", "Nieprawidłowa liczba połączeń!");
+        wrongNumberOfConnections("Walidacja!", "Nieprawidłowa liczba połączeń!"),
+        graphDoesNotGenerate("Walidacja", "Graf nie został wygenerowany!"),
+        wrongEdgeValue("Walidacja", "Nieprawidłowa wartość ścieżki!");
 
         private String type;
         private String text;

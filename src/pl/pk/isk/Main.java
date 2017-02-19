@@ -105,17 +105,39 @@ public class Main extends Application{
 
         Button btnSearchPath = new Button("Szukaj");
         btnSearchPath.setOnAction(event -> {
+            if (!searchButtonValidator())
+                return;
             Transformer<CustomLink, Double> transformer = CustomLink::getWeight;
             DijkstraShortestPath<CustomNode, CustomLink> alg = new DijkstraShortestPath(graph, transformer);
-            path = alg.getPath(graphGenerator.getListOfNodes().get(0), graphGenerator.getListOfNodes().get(1));
 
-            System.out.println(path);
+            CustomNode nodeFrom = graphGenerator.getListOfNodes().get(Converters.checkStringAndConvertToInt(tfdEdgeFrom.getText()) - 1);
+            CustomNode nodeTo = graphGenerator.getListOfNodes().get(Converters.checkStringAndConvertToInt(tfdEdgeTo.getText()) - 1);
+            path = alg.getPath(nodeFrom, nodeTo);
+
             if (visualizationViewer != null)
                 visualizationViewer.repaint();
         });
         btnSearchPath.setPadding(new Insets(5,5,5,5));
         toolbar.add(btnSearchPath, 0,6);
         return toolbar;
+    }
+
+    private boolean searchButtonValidator() {
+        if (visualizationViewer == null) {
+            Dialogs.showError(Dialogs.Text.graphDoesNotGenerate);
+            return false;
+        }
+        Integer nodes = Converters.checkStringAndConvertToInt(tfdEdgesNumber.getText());
+
+        Integer edgeFrom = Converters.checkStringAndConvertToInt(tfdEdgeFrom.getText());
+        Integer edgeTo = Converters.checkStringAndConvertToInt(tfdEdgeTo.getText());
+        if (edgeFrom == null || edgeTo == null
+                || edgeFrom.intValue() < 1 || edgeFrom.intValue() > nodes.intValue()
+                || edgeTo.intValue() < 1 || edgeTo.intValue() > nodes.intValue()) {
+            Dialogs.showError(Dialogs.Text.wrongEdgeValue);
+            return false;
+        }
+        return true;
     }
 
     private GridPane getPaintedGraph() {
